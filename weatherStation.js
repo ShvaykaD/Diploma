@@ -6,7 +6,7 @@ var mqtt = require('mqtt');
 // Don't forget to update accessToken constant with your device access token
 
 const ACCESS_TOKEN = "tihc9FnZcdMTvgojIEEh";
-const minTemperature = 17.5, maxTemperature = 30, minHumidity = 12, maxHumidity = 90;
+const minTemperature = 10, maxTemperature = 15, minHumidity = 30, maxHumidity = 50;
 
 // Initialization of temperature and humidity data with random values
 var data = {

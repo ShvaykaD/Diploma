@@ -8,48 +8,56 @@ var client  = mqtt.connect('mqtt://localhost',{
     username: ACCESS_TOKEN
 });
 
-var controlValue,
-    realValue = 18;
+var value = 20;
+
+var aerationFlag = {method: "turnOff"};
+var messageAeration;
+
+var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
+    username: 'AERATION_TOKEN'
+});
+
+clientAeration.on('connect', function () {
+    console.log('connected');
+    clientAeration.subscribe('v1/devices/me/rpc/request/+');
+});
+
+clientAeration.on('message', function (topic, message) {
+    console.log('request.topic: ' + topic);
+    console.log('request.body: ' + message.toString());
+    aerationFlag = JSON.parse(message.toString());
+    console.log(JSON.stringify(aerationFlag));
+    var requestId = topic.slice('v1/devices/me/rpc/request/'.length);
+    //client acts as an echo service
+    clientAeration.publish('v1/devices/me/rpc/response/' + requestId, message);
+});
+
+
 
 client.on('connect', function () {
     console.log('Client connected');
     client.subscribe('v1/devices/me/rpc/request/+');
     console.log('Uploading temperature data once per second...');
-    setInterval(publishTelemetry, 1000);
+    setInterval(publishTelemetryThermostat, 5000);
 });
 
-client.on('message', function (topic, message) {
-    console.log('request.topic: ' + topic);
-    console.log('request.body: ' + message.toString());
-    var requestId = topic.slice('v1/devices/me/rpc/request/'.length),
-        messageData = JSON.parse(message.toString());
-    if (messageData.method === 'getValue') {
-        if(controlValue === undefined) {
-            client.publish('v1/devices/me/rpc/response/' + requestId, JSON.stringify(realValue));
-        } else {
-            client.publish('v1/devices/me/rpc/response/' + requestId, JSON.stringify(controlValue));
-        }
-    } else if (messageData.method === 'setValue') {
-        controlValue = messageData.params;
-        console.log('Going to set new control value: ' + controlValue);
-    } else {
-        client.publish('v1/devices/me/rpc/response/' + requestId, message);
+
+function emulateTemperatureChangingThermostat() {
+    console.log('aerationFlag - : ' + aerationFlag.method);
+   // console.log(aerationFlag);
+    if(aerationFlag.method == "turnOff") {
+        value += 0.5;
+        //console.log('value + : ' + JSON.stringify({temperature: value}));
+    } else if (aerationFlag.method == "turnOn"){
+        value -= 0.5;
+        //console.log('value - : ' + JSON.stringify({temperature: value}));
     }
-});
-
-function publishTelemetry() {
-    emulateTemperatureChanging();
-    client.publish('v1/devices/me/telemetry', JSON.stringify({temperature: realValue}));
 }
 
-function emulateTemperatureChanging() {
-    if(controlValue !== undefined) {
-        if(controlValue >= realValue) {
-            realValue += (Math.random() + (Math.abs(controlValue - realValue)/30));
-        } else {
-            realValue -= (Math.random() + (Math.abs(controlValue - realValue)/30));
-        }
-    }
+function publishTelemetryThermostat() {
+    emulateTemperatureChangingThermostat();
+    console.log('Sending: ' + JSON.stringify({temperature: value}));
+    client.publish('v1/devices/me/telemetry', JSON.stringify({temperature: value}));
 }
 
 //Catches ctrl+c event
@@ -57,6 +65,7 @@ process.on('SIGINT', function () {
     console.log();
     console.log('Disconnecting...');
     client.end();
+    clientAeration.end();
     console.log('Exited!');
     process.exit(2);
 });
@@ -67,3 +76,5 @@ process.on('uncaughtException', function(e) {
     console.log(e.stack);
     process.exit(99);
 });
+
+
