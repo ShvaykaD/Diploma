@@ -6,13 +6,13 @@ var mqtt = require('mqtt');
 // Don't forget to update accessToken constant with your device access token
 
 const ACCESS_TOKEN = "2x7aNGSsGP8aMtb1A94l";
-const  minHumidity = 12, maxHumidity = 22;
+const  minHumidity = 12, maxHumidity = 19;
 
 // Initialization of temperature and humidity data with random values
 var data = {
     humidity: minHumidity + (maxHumidity - minHumidity) * Math.random()
 };
-
+// Initialization of mqtt client using device access token
 var client  = mqtt.connect('mqtt://localhost',{
     username: ACCESS_TOKEN
 });

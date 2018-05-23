@@ -4,18 +4,20 @@
 var mqtt = require('mqtt');
 const ACCESS_TOKEN = "ME0oSWC98eCl6ISGlnkX";
 
+// Initialization of mqtt client using device access token
 var client  = mqtt.connect('mqtt://localhost',{
     username: ACCESS_TOKEN
+});
+
+// Initialization of mqtt client using device access token
+var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
+    username: 'AERATION_TOKEN'
 });
 
 var value = 20;
 
 var aerationFlag = {method: "turnOff"};
 var messageAeration;
-
-var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
-    username: 'AERATION_TOKEN'
-});
 
 clientAeration.on('connect', function () {
     console.log('connected');
@@ -46,12 +48,14 @@ function emulateTemperatureChangingThermostat() {
     console.log('aerationFlag - : ' + aerationFlag.method);
    // console.log(aerationFlag);
     if(aerationFlag.method == "turnOff") {
-        value += 0.5;
+        value += Math.random();
         //console.log('value + : ' + JSON.stringify({temperature: value}));
     } else if (aerationFlag.method == "turnOn"){
-        value -= 0.5;
+        value -= Math.random();
         //console.log('value - : ' + JSON.stringify({temperature: value}));
     }
+    return value = Math.round(value * 10) / 10;
+
 }
 
 function publishTelemetryThermostat() {

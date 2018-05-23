@@ -14,7 +14,7 @@ var data = {
     humidity: minHumidity + (maxHumidity - minHumidity) * Math.random()
 };
 
-// Initialization of mqtt client using Thingsboard host and device access token
+// Initialization of mqtt client using device access token
 var client  = mqtt.connect('mqtt://localhost',{
     username: ACCESS_TOKEN
 });
