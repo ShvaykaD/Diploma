@@ -14,10 +14,10 @@ var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
     username: 'AERATION_TOKEN'
 });
 
-var value = 20;
+var value = 21;
 
 var aerationFlag = {method: "turnOff"};
-var messageAeration;
+var msgFlag;
 
 clientAeration.on('connect', function () {
     console.log('connected');
@@ -27,11 +27,23 @@ clientAeration.on('connect', function () {
 clientAeration.on('message', function (topic, message) {
     console.log('request.topic: ' + topic);
     console.log('request.body: ' + message.toString());
-    aerationFlag = JSON.parse(message.toString());
-    console.log(JSON.stringify(aerationFlag));
+    var tmp =  JSON.parse(message.toString())
+    if((msgFlag === undefined || !msgFlag) && tmp.method == "turnOn") {
+        aerationFlag = tmp;
+        msgFlag = true;
+        console.log('Turning ON...');
+        clientAeration.publish('v1/devices/me/telemetry', JSON.stringify({aerationFlag: "ON" }));
+    }
+
+    if((msgFlag === undefined || msgFlag) && tmp.method == "turnOff"){
+        aerationFlag = tmp;
+        msgFlag = false;
+        console.log('Turning OF...');
+        clientAeration.publish('v1/devices/me/telemetry', JSON.stringify({aerationFlag: "OFF" }));
+    }
     var requestId = topic.slice('v1/devices/me/rpc/request/'.length);
     //client acts as an echo service
-    clientAeration.publish('v1/devices/me/rpc/response/' + requestId, message);
+     clientAeration.publish('v1/devices/me/rpc/response/' + requestId, message);
 });
 
 
