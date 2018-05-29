@@ -14,9 +14,9 @@ var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
     username: 'AERATION_TOKEN'
 });
 
-var value = 21;
+var value = 17;
 
-var aerationFlag = {method: "turnOff"};
+var aerationFlag = {method: "turnOn"};
 var msgFlag;
 
 clientAeration.on('connect', function () {
