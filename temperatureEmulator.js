@@ -27,7 +27,7 @@ clientAeration.on('connect', function () {
 clientAeration.on('message', function (topic, message) {
     console.log('request.topic: ' + topic);
     console.log('request.body: ' + message.toString());
-    var tmp =  JSON.parse(message.toString())
+    var tmp =  JSON.parse(message.toString());
     if((msgFlag === undefined || !msgFlag) && tmp.method == "turnOn") {
         aerationFlag = tmp;
         msgFlag = true;
