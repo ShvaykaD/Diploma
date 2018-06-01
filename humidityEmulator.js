@@ -3,8 +3,8 @@
  */
 var mqtt = require('mqtt');
 
-// Don't forget to update accessToken constant with your device access token
 
+// device access token and constants humidity
 const ACCESS_TOKEN = "2x7aNGSsGP8aMtb1A94l";
 const  minHumidity = 12, maxHumidity = 19;
 

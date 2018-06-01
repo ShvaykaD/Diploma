@@ -3,8 +3,7 @@
  */
 var mqtt = require('mqtt');
 
-// Don't forget to update accessToken constant with your device access token
-
+// device access token and constants temperature and humidity
 const ACCESS_TOKEN = "tihc9FnZcdMTvgojIEEh";
 const minTemperature = 10, maxTemperature = 15, minHumidity = 30, maxHumidity = 50;
 
@@ -36,7 +35,7 @@ function publishTelemetry() {
     client.publish('v1/devices/me/telemetry', JSON.stringify(data));
 }
 
-// Generates new random value that is within 3% range from previous value
+// Generates new random value
 function genNextValue(prevValue, min, max) {
     var value = prevValue + ((max - min) * (Math.random() - 0.5)) * 0.03;
     value = Math.max(min, Math.min(max, value));

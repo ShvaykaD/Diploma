@@ -2,6 +2,8 @@
  * Created by mshvayka on 14.05.18.
  */
 var mqtt = require('mqtt');
+
+// device access token
 const ACCESS_TOKEN = "ME0oSWC98eCl6ISGlnkX";
 
 // Initialization of mqtt client using device access token
@@ -14,16 +16,19 @@ var clientAeration = mqtt.connect('mqtt://127.0.0.1', {
     username: 'AERATION_TOKEN'
 });
 
+//initial value of temperature
 var value = 17;
 
 var aerationFlag = {method: "turnOn"};
 var msgFlag;
 
+// Triggers when client Aeration is successfully connected to the Thingsboard server
 clientAeration.on('connect', function () {
     console.log('connected');
     clientAeration.subscribe('v1/devices/me/rpc/request/+');
 });
 
+//RPC message handling sent to the client
 clientAeration.on('message', function (topic, message) {
     console.log('request.topic: ' + topic);
     console.log('request.body: ' + message.toString());
@@ -32,6 +37,7 @@ clientAeration.on('message', function (topic, message) {
         aerationFlag = tmp;
         msgFlag = true;
         console.log('Turning ON...');
+        // Uploads telemetry data using 'v1/devices/me/telemetry' MQTT topic
         clientAeration.publish('v1/devices/me/telemetry', JSON.stringify({aerationFlag: "ON" }));
     }
 
@@ -39,6 +45,7 @@ clientAeration.on('message', function (topic, message) {
         aerationFlag = tmp;
         msgFlag = false;
         console.log('Turning OF...');
+        // Uploads telemetry data using 'v1/devices/me/telemetry' MQTT topic
         clientAeration.publish('v1/devices/me/telemetry', JSON.stringify({aerationFlag: "OFF" }));
     }
     var requestId = topic.slice('v1/devices/me/rpc/request/'.length);
@@ -47,7 +54,7 @@ clientAeration.on('message', function (topic, message) {
 });
 
 
-
+// Triggers when client is successfully connected to the Thingsboard server
 client.on('connect', function () {
     console.log('Client connected');
     client.subscribe('v1/devices/me/rpc/request/+');
@@ -55,7 +62,7 @@ client.on('connect', function () {
     setInterval(publishTelemetryThermostat, 5000);
 });
 
-
+//function emulation of temperature changing
 function emulateTemperatureChangingThermostat() {
     console.log('aerationFlag - : ' + aerationFlag.method);
    // console.log(aerationFlag);
@@ -70,6 +77,7 @@ function emulateTemperatureChangingThermostat() {
 
 }
 
+// Uploads telemetry data using 'v1/devices/me/telemetry' MQTT topic
 function publishTelemetryThermostat() {
     emulateTemperatureChangingThermostat();
     console.log('Sending: ' + JSON.stringify({temperature: value}));
